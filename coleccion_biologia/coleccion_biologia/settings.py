@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +37,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
+    'guardian',
+    'corsheaders',
+
+    'permissions.apps.PermissionsConfig',
+    'user_type.apps.UserTypeConfig',
+    'users.apps.UsersConfig',
+    'taxonomic_level.apps.TaxonomicLevelConfig',
+    'organism_conservation.apps.OrganismConservationConfig',
+    'country.apps.CountryConfig',
+    'departamento.apps.DepartamentoConfig',
+    'municipio.apps.MunicipioConfig',
+    'life_stage.apps.LifeStageConfig',
+    'registration_base.apps.RegistrationBaseConfig',
+    'organism.apps.OrganismConfig',
+    'authorize_organism.apps.AuthorizeOrganismConfig',
+    'organism_taxonomy.apps.OrganismTaxonomyConfig'
+
 ]
 
 MIDDLEWARE = [
@@ -47,6 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'coleccion_biologia.urls'
@@ -75,8 +96,12 @@ WSGI_APPLICATION = 'coleccion_biologia.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'coleccion_biologia',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
@@ -118,3 +143,31 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Sobre escribe el modelo default de usuario
+AUTH_USER_MODEL = 'users.Users'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
+JWT_AUTH = {
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+}
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+]
